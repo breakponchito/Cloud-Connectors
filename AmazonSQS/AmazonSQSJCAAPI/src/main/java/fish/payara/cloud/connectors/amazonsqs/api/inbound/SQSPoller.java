@@ -42,7 +42,9 @@ package fish.payara.cloud.connectors.amazonsqs.api.inbound;
 import fish.payara.cloud.connectors.amazonsqs.api.OnSQSMessage;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,11 +53,15 @@ import javax.resource.spi.BootstrapContext;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.resource.spi.work.WorkException;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.profiles.Profile;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.Message;
 import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
+import software.amazon.awssdk.services.sso.auth.SsoProfileCredentialsProviderFactory;
+import java.lang.IllegalStateException;
+import software.amazon.awssdk.utils.StringUtils;
 
 /**
  * @author Steve Millidge (Payara Foundation)
@@ -71,7 +77,41 @@ class SQSPoller extends TimerTask {
         spec = sqsSpec;
         ctx = context;
         factory = endpointFactory;
-        client = SqsClient.builder().region(Region.of(spec.getRegion())).credentialsProvider(ProfileCredentialsProvider.create()).build();
+
+        if(StringUtils.isNotBlank(spec.getSsoAccountId()) && StringUtils.isNotBlank(spec.getSsoRoleName())
+                && StringUtils.isNotBlank(spec.getSsoRegion()) && StringUtils.isNotBlank(spec.getSsoStartUrl())) {
+            client = createSsoSqsClient(spec);
+        } else if(StringUtils.isNotBlank(spec.getAwsAccessKeyId()) && StringUtils.isNotBlank(spec.getAwsSecretKey())) {
+            client = createProfileSqsClient(spec);
+        } else {
+            client = SqsClient.builder().region(Region.of(spec.getRegion()))
+                    .credentialsProvider(ProfileCredentialsProvider.create()).build();
+        }
+
+    }
+
+    public Profile buildProfile(AmazonSQSActivationSpec amazonSQSActivationSpec) {
+        Map<String, String> properties = new HashMap<>();
+        properties.put("sso_account_id", amazonSQSActivationSpec.getSsoAccountId());
+        properties.put("sso_region", amazonSQSActivationSpec.getSsoRegion());
+        properties.put("sso_role_name", amazonSQSActivationSpec.getSsoRoleName());
+        properties.put("sso_start_url", amazonSQSActivationSpec.getSsoStartUrl());
+        return Profile.builder().name(amazonSQSActivationSpec.getProfileName()).properties(properties).build();
+    }
+
+    public SqsClient createProfileSqsClient(AmazonSQSActivationSpec amazonSQSActivationSpec) {
+        return SqsClient.builder()
+                .region(Region.of(amazonSQSActivationSpec.getRegion()))
+                .credentialsProvider(ProfileCredentialsProvider.builder()
+                        .profileName(amazonSQSActivationSpec.getProfileName()).build()).build();
+    }
+
+    public SqsClient createSsoSqsClient(AmazonSQSActivationSpec amazonSQSActivationSpec) {
+        SsoProfileCredentialsProviderFactory ssoProfileCredentialsProviderFactory =
+                new SsoProfileCredentialsProviderFactory();
+        return SqsClient.builder()
+                .credentialsProvider(ssoProfileCredentialsProviderFactory
+                        .create(buildProfile(amazonSQSActivationSpec))).build();
     }
 
     @Override

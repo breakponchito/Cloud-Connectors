@@ -76,6 +76,18 @@ public class AmazonSQSManagedConnectionFactory implements ManagedConnectionFacto
     @ConfigProperty(description = "AWS Profile Name", type = String.class)
     private String profileName;
 
+    @ConfigProperty(description = "AWS Sso Account Id", type = String.class)
+    private String ssoAccountId;
+
+    @ConfigProperty(description = "AWS Sso Role Name", type = String.class)
+    private String ssoRoleName;
+
+    @ConfigProperty(description = "AWS Sso Region", type = String.class)
+    private String ssoRegion;
+
+    @ConfigProperty(description = "AWS SSo Start Url", type = String.class)
+    private String ssoStartUrl;
+
     private PrintWriter logger;
 
     public String getAwsSecretKey() {
@@ -108,6 +120,38 @@ public class AmazonSQSManagedConnectionFactory implements ManagedConnectionFacto
 
     public void setProfileName(String profileName) {
         this.profileName = profileName;
+    }
+
+    public String getSsoAccountId() {
+        return ssoAccountId;
+    }
+
+    public void setSsoAccountId(String ssoAccountId) {
+        this.ssoAccountId = ssoAccountId;
+    }
+
+    public String getSsoRoleName() {
+        return ssoRoleName;
+    }
+
+    public void setSsoRoleName(String ssoRoleName) {
+        this.ssoRoleName = ssoRoleName;
+    }
+
+    public String getSsoRegion() {
+        return ssoRegion;
+    }
+
+    public void setSsoRegion(String ssoRegion) {
+        this.ssoRegion = ssoRegion;
+    }
+
+    public String getSsoStartUrl() {
+        return ssoStartUrl;
+    }
+
+    public void setSsoStartUrl(String ssoStartUrl) {
+        this.ssoStartUrl = ssoStartUrl;
     }
 
     public AmazonSQSManagedConnectionFactory() {
@@ -153,6 +197,10 @@ public class AmazonSQSManagedConnectionFactory implements ManagedConnectionFacto
         hash = 97 * hash + Objects.hashCode(this.awsAccessKeyId);
         hash = 97 * hash + Objects.hashCode(this.region);
         hash = 97 * hash + Objects.hashCode(this.profileName);
+        hash = 97 * hash + Objects.hashCode(this.ssoAccountId);
+        hash = 97 * hash + Objects.hashCode(this.ssoRegion);
+        hash = 97 * hash + Objects.hashCode(this.ssoRoleName);
+        hash = 97 * hash + Objects.hashCode(this.ssoStartUrl);
         return hash;
     }
 
@@ -178,6 +226,18 @@ public class AmazonSQSManagedConnectionFactory implements ManagedConnectionFacto
             return false;
         }
         if (!Objects.equals(this.profileName, other.profileName)) {
+            return false;
+        }
+        if (!Objects.equals(this.ssoAccountId, other.ssoAccountId)) {
+            return false;
+        }
+        if (!Objects.equals(this.ssoRegion, other.ssoRegion)) {
+            return false;
+        }
+        if (!Objects.equals(this.ssoRoleName, other.ssoRoleName)) {
+            return false;
+        }
+        if (!Objects.equals(this.ssoStartUrl, other.ssoStartUrl)) {
             return false;
         }
         return true;

@@ -73,6 +73,10 @@ public class AmazonSQSActivationSpec implements ActivationSpec, AwsCredentialsPr
     private String messageAttributeNames = "All";
     private String attributeNames = "All";
     private String profileName;
+    private String ssoAccountId;
+    private String ssoRoleName;
+    private String ssoRegion;
+    private String ssoStartUrl;
 
     @Override
     public void validate() throws InvalidPropertyException {
@@ -181,6 +185,38 @@ public class AmazonSQSActivationSpec implements ActivationSpec, AwsCredentialsPr
 
     public void setProfileName(String profileName) {
         this.profileName = profileName;
+    }
+
+    public String getSsoAccountId() {
+        return ssoAccountId;
+    }
+
+    public void setSsoAccountId(String ssoAccountId) {
+        this.ssoAccountId = ssoAccountId;
+    }
+
+    public String getSsoRoleName() {
+        return ssoRoleName;
+    }
+
+    public void setSsoRoleName(String ssoRoleName) {
+        this.ssoRoleName = ssoRoleName;
+    }
+
+    public String getSsoRegion() {
+        return ssoRegion;
+    }
+
+    public void setSsoRegion(String ssoRegion) {
+        this.ssoRegion = ssoRegion;
+    }
+
+    public String getSsoStartUrl() {
+        return ssoStartUrl;
+    }
+
+    public void setSsoStartUrl(String ssoStartUrl) {
+        this.ssoStartUrl = ssoStartUrl;
     }
 
     @Override
